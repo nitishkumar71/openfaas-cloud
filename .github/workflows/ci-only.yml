@@ -25,8 +25,3 @@ jobs:
           registry: ghcr.io
       - name: Run CI
         run: sh ./contrib/ci.sh
-      - name: After Success
-        run: |
-          if [ ! -s "$TRAVIS_TAG" ] ; then 
-            echo "Time to tag images as $TRAVIS_TAG and push remote"
-          fi
