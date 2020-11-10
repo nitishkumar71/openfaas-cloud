@@ -6,25 +6,25 @@ on:
       - '*'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        go-version: [1.13.x]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
-    steps:
-      - uses: actions/checkout@master
-        with:
-          fetch-depth: 1
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Get TAG
-        id: get_tag
-        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+  # init:
+  #   strategy:
+  #     matrix:
+  #       go-version: [1.13.x]
+  #       os: [ubuntu-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   outputs:
+  #     tag: ${{ steps.get_tag.outputs.tag }}
+  #   steps:
+      # - uses: actions/checkout@master
+      #   with:
+      #     fetch-depth: 1
+      # - name: Install Go
+      #   uses: actions/setup-go@v2
+      #   with:
+      #     go-version: ${{ matrix.go-version }}
+      # - name: Get TAG
+      #   id: get_tag
+      #   run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
       # - name: Run CI
       #   run: sh ./contrib/ci.sh
       # - name: After Success
@@ -33,7 +33,7 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
     strategy:
       matrix:
         svc: [
@@ -42,6 +42,9 @@ jobs:
           of-builder
         ]
     steps:
+      - name: Get TAG
+        id: get_tag
+        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
       - uses: actions/checkout@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -57,5 +60,5 @@ jobs:
           context: ./${{ matrix.svc }}
           file: ./${{ matrix.svc }}/Dockerfile
           tags: |
-            ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.svc }}:${{needs.init.outputs.tag}}
+            ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.svc }}:${{steps.get_tag.outputs.tag}}
             ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.svc }}:latest
