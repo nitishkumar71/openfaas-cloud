@@ -64,6 +64,7 @@ jobs:
         with:
           context: ./${{ matrix.svc }}
           file: ./${{ matrix.svc }}/Dockerfile
+          push: true
           tags: |
             ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.svc }}:${{needs.init.outputs.tag}}
             ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ matrix.svc }}:latest
